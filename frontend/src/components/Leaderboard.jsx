@@ -30,20 +30,20 @@ function Leaderboard({ owners, players }) {
             let budgetColor = 'text-slate-300';
             let badgeColor = 'bg-slate-700';
 
-            if (isFirst) {
-              cardColor = 'bg-amber-950/10 border-amber-900/30';
+            if (isSecond) {
+              cardColor = 'bg-amber-950/40 border-amber-900/30';
               rankColor = 'bg-amber-500/10 text-amber-500 border border-amber-500/20';
               textColor = 'text-amber-400/90';
               budgetColor = 'text-amber-500';
               badgeColor = 'bg-amber-600';
-            } else if (isSecond) {
-              cardColor = 'bg-slate-800/40 border-slate-700/50';
-              rankColor = 'bg-slate-700 text-slate-200 border border-slate-600';
-              textColor = 'text-slate-200';
-              budgetColor = 'text-slate-300';
-              badgeColor = 'bg-slate-500';
+            } else if (isFirst) {
+              cardColor = 'bg-yellow-800/40 border-yellow-700/50';
+              rankColor = 'bg-yellow-700 text-yellow-200 border border-yellow-600';
+              textColor = 'text-yellow-200';
+              budgetColor = 'text-yellow-300';
+              badgeColor = 'bg-yellow-500';
             } else if (isThird) {
-              cardColor = 'bg-orange-950/10 border-orange-900/30';
+              cardColor = 'bg-orange-950/40 border-orange-900/30';
               rankColor = 'bg-orange-500/10 text-orange-500 border border-orange-500/20';
               textColor = 'text-orange-400/90';
               budgetColor = 'text-orange-500';

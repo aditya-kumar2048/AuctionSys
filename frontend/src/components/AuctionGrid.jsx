@@ -3,6 +3,7 @@ import { History, Search } from 'lucide-react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import Mousetrap from 'mousetrap';
+import Logo from "/logo.png"
 import "./auction.css"
 
 gsap.registerPlugin(useGSAP);
@@ -72,9 +73,15 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
 
   return (
     <div className="h-full w-full bg-slate-950 font-sans text-slate-200 overflow-hidden flex flex-col border border-slate-800/50  relative" ref={container}>
-      {/* Decorative gradient blur in background
-      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-900/10 rounded-full blur-[100px] pointer-events-none -z-0"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-900/10 rounded-full blur-[100px] pointer-events-none -z-0"></div> */}
+          {/* Decorative gradient blur in background */}
+    <div className="absolute top-[15%]  right-[20%]  w-250 h-250 pointer-events-none z-0">
+      <img
+        src={Logo}
+        alt="Logo"
+        className="w-full h-full object-contain opacity-20 blur-[6px]"
+      />
+    </div>
+      {/*<div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-900/10 rounded-full blur-[100px] pointer-events-none -z-0"></div> */}
 
 
       <div className="overflow-x-auto overflow-y-auto h-full relative z-10 custom-scrollbar">

@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { startAuction, placeBid, finalizeAuction, createOwner, createPlayer } from '../api';
+import Mousetrap from 'mousetrap';
+import fixMoney from '../utils/money';
+
+import toast , { Toaster } from 'react-hot-toast';
 
 function AdminControls({ owners, players, activePlayer, onUpdate }) {
   const [selectedPlayerId, setSelectedPlayerId] = useState('');
@@ -17,10 +21,28 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
 
   const [errorMsg, setErrorMsg] = useState('');
 
+
+ 
+
+
+
   const handleError = (err) => {
     setErrorMsg(err.response?.data?.error || err.message);
     setTimeout(() => setErrorMsg(''), 5000);
   };
+  const handleNotification = (msg) => {
+     toast.success(msg , {
+  style: {
+    border: '1px solid #713200',
+    padding: '16px',
+    color: '#713200',
+  },
+  iconTheme: {
+    primary: '#713200',
+    secondary: '#FFFAEE',
+  }});
+   }
+
 
   const handleStartAuction = async () => {
     if (!selectedPlayerId) return setErrorMsg('Select a player first');
@@ -42,6 +64,7 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
         ownerId: bidOwnerId,
         amount: Number(bidAmount)
       });
+      handleNotification(`Bid of ₹${fixMoney((bidAmount))} placed successfully!`);
       setBidAmount('');
       onUpdate();
     } catch (err) {
@@ -49,6 +72,12 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
     }
   };
 
+  Mousetrap.bind('enter', () => {
+    if (activePlayer) {
+      document.querySelector('form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    } 
+  });
+  
   const handleFinalize = async (status) => {
     if (!activePlayer) return;
     if (status === 'Sold' && !window.confirm(`Are you sure you want to sell ${activePlayer.name}?`)) return;
@@ -93,7 +122,7 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
 
   return (
     <div className="flex flex-col md:flex-row gap-6 items-start">
-
+     <Toaster position="top-center" reverseOrder={false} />
       {/* Main Auction Controller */}
       <div className="flex-1 w-full space-y-4">
         {errorMsg && (
@@ -103,7 +132,7 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
         )}
 
         <div className="card p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4 border-b border-gray-100 pb-2">Active Auction</h3>
+          <h3 className="text-lg font-medium text-white mb-4 border-b border-gray-100 pb-2">Active Auction</h3>
 
           {!activePlayer ? (
             <div className="flex flex-col sm:flex-row gap-3">
@@ -114,7 +143,7 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
               >
                 <option value="">Select a player to start...</option>
                 {notStartedPlayers.map(p => (
-                  <option key={p._id} value={p._id}>{p.name} (Base: ₹{p.basePrice})</option>
+                  <option key={p._id} value={p._id}>{p.name} (Base: ₹{fixMoney(p.basePrice)})</option>
                 ))}
               </select>
               <button onClick={handleStartAuction} className="btn-primary whitespace-nowrap">
@@ -130,13 +159,13 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
                 </div>
                 <div className="text-right">
                   <span className="text-xs font-medium text-gray-500 uppercase tracking-wider block">Base Price</span>
-                  <span className="text-lg font-mono font-medium text-gray-900">${activePlayer.basePrice}</span>
+                  <span className="text-lg font-mono font-medium text-gray-900">{`₹${(activePlayer.basePrice)}`}</span>
                 </div>
               </div>
 
               <form onSubmit={handlePlaceBid} className="flex flex-col sm:flex-row gap-3 items-end">
                 <div className="flex-1 w-full">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Select Team</label>
+                  <label className="block text-md font-medium text-white mb-1">Select Team</label>
                   <select
                     className="input-field"
                     value={bidOwnerId}
@@ -145,12 +174,12 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
                   >
                     <option value="">Choose...</option>
                     {owners.map(o => (
-                      <option key={o._id} value={o._id}>{o.name} (${o.remainingBudget} available)</option>
+                      <option key={o._id} value={o._id}>{o.name} (₹{(o.remainingBudget)} available)</option>
                     ))}
                   </select>
                 </div>
                 <div className="w-full sm:w-40">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Bid Amount ($)</label>
+                  <label className="block text-md font-medium text-white mb-1">Bid Amount (₹)</label>
                   <input
                     type="number"
                     className="input-field font-mono"
@@ -181,34 +210,34 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
       {/* Entity Setup Forms */}
       <div className="w-full md:w-80 flex flex-col gap-4">
         <div className="card p-5">
-          <h4 className="text-sm font-semibold text-gray-900 mb-3 border-b border-gray-100 pb-2">Add New Team</h4>
+          <h4 className=" font-bold text-lg text-white mb-3 border-b border-gray-100 pb-2">Add New Team</h4>
           <form onSubmit={handleCreateOwner} className="space-y-3">
             <div>
               <input type="text" placeholder="Team Name" required className="input-field" value={newOwnerName} onChange={e => setNewOwnerName(e.target.value)} />
             </div>
             <div>
-              <input type="number" placeholder="Total Budget ($)" required className="input-field font-mono" value={newOwnerBudget} onChange={e => setNewOwnerBudget(e.target.value)} />
+              <input type="number" placeholder="Total Budget (₹)" required className="input-field font-mono" value={newOwnerBudget} onChange={e => setNewOwnerBudget(e.target.value)} />
             </div>
              <div>
               <input type="url" placeholder="Photo URL (Optional)" className="input-field" value={newOwnerPhoto} onChange={e => setNewOwnerPhoto(e.target.value)} />
             </div>
-            <button type="submit" className="btn-secondary w-full text-xs py-1.5">Create Team</button>
+            <button type="submit" className=" bg-white text-md rounded font-bold text-gray-700 cursor-pointer w-full py-2 hover:bg-indigo-600 hover:text-white transition-all duration-300">Create Team</button>
           </form>
         </div>
 
         <div className="card p-5">
-          <h4 className="text-sm font-semibold text-gray-900 mb-3 border-b border-gray-100 pb-2">Add New Player</h4>
+          <h4 className="text-lg font-semibold text-white mb-3 border-b border-gray-100 pb-2">Add New Player</h4>
           <form onSubmit={handleCreatePlayer} className="space-y-3">
             <div>
               <input type="text" placeholder="Player Name" required className="input-field" value={newPlayerName} onChange={e => setNewPlayerName(e.target.value)} />
             </div>
             <div>
-              <input type="number" placeholder="Base Price ($)" required className="input-field font-mono" value={newPlayerBasePrice} onChange={e => setNewPlayerBasePrice(e.target.value)} />
+              <input type="number" placeholder="Base Price (₹)" required className="input-field font-mono" value={newPlayerBasePrice} onChange={e => setNewPlayerBasePrice(e.target.value)} />
             </div>
             <div>
               <input type="url" placeholder="Photo URL (Optional)" className="input-field" value={newPlayerPhoto} onChange={e => setNewPlayerPhoto(e.target.value)} />
             </div>
-            <button type="submit" className="btn-secondary w-full text-xs py-1.5">Create Player</button>
+            <button type="submit" className=" bg-white text-md rounded font-bold text-gray-700 cursor-pointer w-full py-2 hover:bg-indigo-600 hover:text-white transition-all duration-300">Create Player</button>
           </form>
         </div>
       </div>
