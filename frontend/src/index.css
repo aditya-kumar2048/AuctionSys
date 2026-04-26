@@ -7,9 +7,9 @@
 }
 
 /* Minimal utility classes replacing glassmorphism */
-.card {
+/* .card {
   @apply bg-white border border-gray-200 rounded-lg shadow-sm;
-}
+} */
 
 .input-field {
   @apply w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow;
@@ -32,22 +32,25 @@
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: transparent; 
+  background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1; 
+  background: #cbd5e1;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; 
+  background: #94a3b8;
 }
 
 @layer components {
   .glass-card {
     @apply bg-slate-900/50 backdrop-blur-md border border-slate-800 shadow-2xl;
   }
-  
+
   .stat-value {
     @apply font-mono tracking-tighter font-bold text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400;
   }

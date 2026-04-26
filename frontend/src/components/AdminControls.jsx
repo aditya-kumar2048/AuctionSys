@@ -9,6 +9,7 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
 
   const [newOwnerName, setNewOwnerName] = useState('');
   const [newOwnerBudget, setNewOwnerBudget] = useState('');
+   const [newOwnerPhoto, setNewOwnerPhoto] = useState('');
 
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerBasePrice, setNewPlayerBasePrice] = useState('');
@@ -64,9 +65,10 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
     e.preventDefault();
     if (!newOwnerName || !newOwnerBudget) return;
     try {
-      await createOwner({ name: newOwnerName, totalBudget: Number(newOwnerBudget) });
+      await createOwner({ name: newOwnerName, totalBudget: Number(newOwnerBudget) , photo: newOwnerPhoto || null });
       setNewOwnerName('');
       setNewOwnerBudget('');
+      setNewOwnerPhoto('');
       onUpdate();
     } catch (err) {
       handleError(err);
@@ -112,7 +114,7 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
               >
                 <option value="">Select a player to start...</option>
                 {notStartedPlayers.map(p => (
-                  <option key={p._id} value={p._id}>{p.name} (Base: ${p.basePrice})</option>
+                  <option key={p._id} value={p._id}>{p.name} (Base: ₹{p.basePrice})</option>
                 ))}
               </select>
               <button onClick={handleStartAuction} className="btn-primary whitespace-nowrap">
@@ -186,6 +188,9 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
             </div>
             <div>
               <input type="number" placeholder="Total Budget ($)" required className="input-field font-mono" value={newOwnerBudget} onChange={e => setNewOwnerBudget(e.target.value)} />
+            </div>
+             <div>
+              <input type="url" placeholder="Photo URL (Optional)" className="input-field" value={newOwnerPhoto} onChange={e => setNewOwnerPhoto(e.target.value)} />
             </div>
             <button type="submit" className="btn-secondary w-full text-xs py-1.5">Create Team</button>
           </form>

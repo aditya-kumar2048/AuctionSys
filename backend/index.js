@@ -28,11 +28,19 @@ app.get('/api/owners', async (req, res) => {
 });
 
 app.post('/api/owners', async (req, res) => {
-  const { name, totalBudget } = req.body;
-  const owner = new Owner({ name, totalBudget, remainingBudget: totalBudget });
+  const { name, totalBudget, photo } = req.body;
+  const owner = new Owner({ name, totalBudget, remainingBudget: totalBudget, photo });
   await owner.save();
   res.json(owner);
 });
+
+app.delete('/api/owners/:id', async (req, res) => {
+  const owner = await Owner.findByIdAndDelete(req.params.id);
+  if (!owner) return res.status(404).json({ error: 'Owner not found' });
+  res.json(owner);
+})
+
+
 
 // -----------------------------------------
 // Player Routes
@@ -48,6 +56,11 @@ app.post('/api/players', async (req, res) => {
   await player.save();
   res.json(player);
 });
+app.delete('/api/players/:id', async (req, res) => {
+  const player = await Player.findByIdAndDelete(req.params.id);
+  if (!player) return res.status(404).json({ error: 'player not found' });
+  res.json(player);
+})
 
 // -----------------------------------------
 // Auction Routes
