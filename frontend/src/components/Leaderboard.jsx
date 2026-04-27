@@ -56,8 +56,11 @@ function Leaderboard({ owners, players }) {
                 className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${cardColor}`}
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm shrink-0 ${rankColor}`}>
-                    {index + 1}
+                  <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm shrink-0 ${rankColor}`}>
+                   {
+                    owner.photo ? ( <img className='w-full h-full object-cover object-center' src={owner.photo} alt="logo" />) :
+                    (index + 1)
+                    }
                   </div>
 
                   <div className="min-w-0">

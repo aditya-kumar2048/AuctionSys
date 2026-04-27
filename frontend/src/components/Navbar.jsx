@@ -45,6 +45,9 @@ function TopNav() {
             >
               Admin Controls
             </Link>
+            <div className=' overflow-hidden mt-10 w-25 h-25  '>
+        <img className='w-full h-full object-cover object-center ' src="https://www.iplt20.com/assets/images/rounded_spiral-header-right.png" alt="desing " />
+        </div>
           </nav>
         </div>
       </div>
