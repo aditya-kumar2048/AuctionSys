@@ -74,7 +74,7 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
   return (
     <div className="h-full w-full bg-slate-950 font-sans text-slate-200 overflow-hidden flex flex-col border border-slate-800/50  relative" ref={container}>
           {/* Decorative gradient blur in background */}
-    <div className="absolute top-[15%]  right-[20%]  w-250 h-250 pointer-events-none z-0">
+    <div className="absolute top-[15%]  right-[15%]  w-250 h-250 pointer-events-none z-0">
       <img
         src={Logo}
         alt="Logo"
