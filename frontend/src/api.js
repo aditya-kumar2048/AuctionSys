@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_URL = 'http://localhost:5000/api';
+export const API_URL = 'http://auctionsys-production.up.railway.app/api';
 
 export const getOwners = () => axios.get(`${API_URL}/owners`).then(res => res.data);
 export const createOwner = (data) => axios.post(`${API_URL}/owners`, data).then(res => res.data);
