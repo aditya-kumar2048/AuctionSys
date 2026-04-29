@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, } from 'react-router-dom';
-import { getOwners, getPlayers, getGrid, deleteOwner, deletePlayer } from './api';
+import { getOwners, getPlayers, getGrid, deleteOwner, deletePlayer, updateOwner } from './api';
 import AuctionGrid from './components/AuctionGrid';
 import Leaderboard from './components/Leaderboard';
 import AdminControls from './components/AdminControls';
@@ -18,8 +18,12 @@ function App() {
   const [players, setPlayers] = useState([]);
   const [gridData, setGridData] = useState([]);
   const [activePlayer, setActivePlayer] = useState(null);
+  const [update, setUpdate] = useState(false);
   const [historyModalPlayer, setHistoryModalPlayer] = useState(null);
   const [playerSearchQuery, setPlayerSearchQuery] = useState('');
+  const [newBudget, setNewBudget] = useState(0);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [adminPinInput, setAdminPinInput] = useState('');
 
   const fetchData = async () => {
     try {
@@ -56,6 +60,41 @@ function App() {
       fetchData();
     } catch (error) {
       console.error("Error deleting owner:", error);
+    }
+  }
+
+  const handleUpdateOwner = async (ownerId, newBudget, ownerName) => {
+    try {
+      if (newBudget <= 0) {
+        toast.error("Budget must be greater than 0", {
+          style: {
+            border: '1px solid #713200',
+            padding: '16px',
+            color: '#713200',
+          },
+          iconTheme: {
+            primary: '#713200',
+            secondary: '#FFFAEE',
+          }
+        });
+        return;
+      }
+
+      await updateOwner(ownerId, newBudget);
+      toast.success(`Updated ${ownerName}'s budget: ${newBudget}`, {
+        style: {
+          border: '1px solid #713200',
+          padding: '16px',
+          color: '#713200',
+        },
+        iconTheme: {
+          primary: '#713200',
+          secondary: '#FFFAEE',
+        }
+      });
+      fetchData();
+    } catch (error) {
+      console.error("Error updating owner:", error);
     }
   }
 
@@ -147,127 +186,186 @@ function App() {
 
             {/* Admin Route */}
             <Route path="/admin" element={
-              <div className="flex flex-col gap-6">
-                <div className="mb-2">
-                  <h2 className="text-2xl font-bold text-white">Admin Controls</h2>
-                  <p className="text-sm text-gray-300">Manage auction state, teams, and players.</p>
-                </div>
-
-                <AdminControls
-                  owners={owners}
-                  players={players}
-                  activePlayer={activePlayer}
-                  onUpdate={fetchData}
-                />
-
-                <h1 className='text-2xl font-bold text-white'> Manage Teams and Players </h1>
-                <div className=' w-full justify-center flex grow gap-5'>
-                  <div className='flex flex-col w-200 gap-5 rounded-xl bg-white border border-gray-400 '>
-                    <div className=' flex py-2 px-2 flex-col gap-3 rounded ' >
-                      {owners.map((owner) => {
-                        return (
-                          <div key={owner._id} className=' py-2 px-3 bg-[#f9fafb] border border-gray-300 rounded-lg w-full flex justify-between hover:bg-gray-300 hover:text-white transition-all duration-300   '>
-                            <div className=' w-1/2 flex  item-center gap-3'>
-                              <div className='w-10 h-10 font-bold text-gray-500 flex justify-center items-center border rounded-full overflow-hidden'>
-                                {
-                                  owner.photo ? (<img src={owner.photo} alt="team logo" />) :
-                                    (
-                                      owner.name.charAt(0).toUpperCase()
-                                    )
-                                }
-                              </div>
-                              <div className='flex items-center gap-5'>
-                                <p className='text-gray-800 font-bold'> Team :  <span className='text-gray-500 font-medium'>{owner.name}</span></p>
-                                <p className='text-gray-800 font-bold'> Budget :  <span className='text-gray-500 font-medium'>{`₹${fixMoney(owner.remainingBudget)}`}</span></p>
-                              </div> </div>
-                            <div className='  flex justify-center items-center gap-1  
-                            text-red-500  font-semibold hover:text-red-700 hover:bg-red-100 hover:border-red-300 hover:border rounded-lg px-2 py-1 transition-all duration-300
-                          '
-                              onClick={() => handleDeleteOwner(owner._id, owner.name)}
-
-                            >
-
-                              <Trash2 />
-
-                            </div>
-
-                          </div>
-                        )
-                      })
-                      }
-                    </div>
-
-                    <div>
-
-                    </div>
-
-                  </div>
-                  <div className='flex flex-col w-200 gap-5 rouned-xl bg-white border border-gray-400 rounded-xl overflow-y-auto'>
-                    <div className='sticky top-0 bg-white p-2 border-b border-gray-200 z-10'>
-                      <input
-                        type="text"
-                        placeholder="Search players (regex supported)..."
-                        value={playerSearchQuery}
-                        onChange={(e) => setPlayerSearchQuery(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 sm:text-sm"
-                      />
-                    </div>
-                    <div className=' flex py-2 px-2 flex-col gap-3 rounded ' >
-                      {players.filter((player) => {
-                        if (!playerSearchQuery) return true;
-                        try {
-                          const regex = new RegExp(playerSearchQuery, 'i');
-                          return regex.test(player.name);
-                        } catch (e) {
-                          return player.name.toLowerCase().includes(playerSearchQuery.toLowerCase());
+              !isAdminAuthenticated ? (
+                <div className="flex flex-col items-center justify-center h-[50vh] gap-4">
+                  <h2 className="text-2xl font-bold text-white">Admin Access</h2>
+                  <input
+                    type="password"
+                    placeholder="Enter Admin PIN"
+                    value={adminPinInput}
+                    onChange={(e) => setAdminPinInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        if (adminPinInput === 'mohit') {
+                          setIsAdminAuthenticated(true);
+                        } else {
+                          toast.error("Invalid PIN", {
+                            style: { border: '1px solid #713200', padding: '16px', color: '#713200' },
+                            iconTheme: { primary: '#713200', secondary: '#FFFAEE' }
+                          });
                         }
-                      }).map((player) => {
-                        return (
-                          <div key={player._id} className=' py-2 px-3 bg-[#f9fafb] border border-gray-300 rounded-lg w-full flex justify-between hover:bg-gray-300 hover:text-white transition-all duration-300   '>
-                            <div className='  flex  item-center gap-3'>
-                              <div className='w-10 h-10 font-bold text-gray-500 flex justify-center items-center border rounded-full overflow-hidden'>
-                                {
-                                  player.photo ? (<img src={player.photo} alt="" />) :
-                                    (
-                                      player.name.charAt(0).toUpperCase()
-                                    )
-                                }
+                      }
+                    }}
+                    className="px-4 py-2 rounded-md border border-gray-300 text-black w-64 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={() => {
+                      if (adminPinInput === 'mohit' || adminPinInput === 'aditya') {
+                        setIsAdminAuthenticated(true);
+                      } else {
+                        toast.error("Invalid PIN", {
+                          style: { border: '1px solid #713200', padding: '16px', color: '#713200' },
+                          iconTheme: { primary: '#713200', secondary: '#FFFAEE' }
+                        });
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-md transition-colors font-medium shadow-md cursor-pointer"
+                  >
+                    Enter Admin Mode
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-6">
+                  <div className="mb-2">
+                    <h2 className="text-2xl font-bold text-white">Admin Controls</h2>
+                    <p className="text-sm text-gray-300">Manage auction state, teams, and players.</p>
+                  </div>
+
+                  <AdminControls
+                    owners={owners}
+                    players={players}
+                    activePlayer={activePlayer}
+                    onUpdate={fetchData}
+                  />
+
+                  <h1 className='text-2xl font-bold text-white'> Manage Teams and Players </h1>
+                  <div className=' w-full justify-center flex grow gap-5'>
+                    <div className='flex flex-col w-200 max-h-210 pt-4 gap-5 rounded-xl bg-white border border-gray-400 '>
+                      <div className=' flex py-2 px-2 flex-col gap-3 rounded ' >
+                        {owners.map((owner) => {
+                          return (
+                            <div key={owner._id} className=' py-2 px-3 bg-[#f9fafb] border border-gray-300 rounded-lg w-full flex justify-between hover:bg-gray-300 hover:text-white transition-all duration-300   '>
+                              <div className=' w-1/2 flex  item-center gap-3'>
+                                <div className='w-10 h-10 font-bold text-gray-500 flex justify-center items-center border rounded-full overflow-hidden'>
+                                  {
+                                    owner.photo ? (<img src={owner.photo} alt="team logo" />) :
+                                      (
+                                        owner.name.charAt(0).toUpperCase()
+                                      )
+                                  }
+                                </div>
+                                <div className='flex items-center gap-5'>
+                                  <p className='text-gray-800 font-bold'> Team :  <span className='text-gray-500 font-medium'>{owner.name}</span></p>
+                                  <p className='text-gray-800 font-bold'> Budget :  <span className='text-gray-500 font-medium'>{`₹${fixMoney(owner.remainingBudget)}`}</span></p>
+                                </div> </div>
+                              <div className='flex justify-center'>
+                                {!update && <button onClick={() => {
+                                  setUpdate(true)
+                                }} className='bg-blue-500 p-2 text-white border border-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer' >Update</button>}
+
+                                {update && (
+                                  <div className='flex gap-3 '>
+                                    <input className=' h-10 border px-2 text-black rounded-lg ' type="number" placeholder="New budget" onChange={(e) => setNewBudget(e.target.value)} />
+                                    <button onClick={() => {
+                                      setUpdate(false);
+                                      handleUpdateOwner(owner._id, newBudget, owner.name);
+                                    }} className='bg-blue-500 p-2 text-white border border-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer' >
+                                      {
+                                        newBudget == 0 ? "close" : "Save"
+                                      }
+                                    </button>
+                                  </div>
+                                )}
                               </div>
-                              <div className='flex items-center gap-5'>
-                                <p className=' text-start text-gray-800 font-bold'> Name :  <span className='text-gray-500 font-medium'>{player.name}</span></p>
-                                <p className='text-gray-800 font-bold'> Base Price :  <span className='text-gray-500 font-medium'>{`₹${fixMoney(player.basePrice)}`}</span></p>
-                              </div> </div>
-                            <div className='  flex justify-center items-center gap-1  
+                              <div className='  flex justify-center items-center gap-1  
                             text-red-500  font-semibold hover:text-red-700 hover:bg-red-100 hover:border-red-300 hover:border rounded-lg px-2 py-1 transition-all duration-300
                           '
-                              onClick={() => handleDeletePlayer(player._id, player.name)}
+                                onClick={() => handleDeleteOwner(owner._id, owner.name)}
 
-                            >
+                              >
 
-                              <Trash2 />
+                                <Trash2 />
+
+                              </div>
 
                             </div>
+                          )
+                        })
+                        }
+                      </div>
 
-                          </div>
-                        )
-                      })
-                      }
+                      <div>
+
+                      </div>
+
                     </div>
+                    <div className='flex flex-col w-200 max-h-210 gap-5   bg-white border border-gray-400 rounded-xl overflow-y-auto'>
+                      <div className='sticky top-0 bg-white p-2 border-b border-gray-200 z-10'>
+                        <input
+                          type="text"
+                          placeholder="Search players (regex supported)..."
+                          value={playerSearchQuery}
+                          onChange={(e) => setPlayerSearchQuery(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 sm:text-sm"
+                        />
+                      </div>
+                      <div className=' flex py-2 px-2 flex-col gap-3 rounded ' >
+                        {players.filter((player) => {
+                          if (!playerSearchQuery) return true;
+                          try {
+                            const regex = new RegExp(playerSearchQuery, 'i');
+                            return regex.test(player.name);
+                          } catch (e) {
+                            return player.name.toLowerCase().includes(playerSearchQuery.toLowerCase());
+                          }
+                        }).map((player) => {
+                          return (
+                            <div key={player._id} className=' py-2 px-3 bg-[#f9fafb] border border-gray-300 rounded-lg w-full flex justify-between hover:bg-gray-300 hover:text-white transition-all duration-300   '>
+                              <div className='  flex  item-center gap-3'>
+                                <div className='w-10 h-10 font-bold text-gray-500 flex justify-center items-center border rounded-full overflow-hidden'>
+                                  {
+                                    player.photo ? (<img src={player.photo} alt="" />) :
+                                      (
+                                        player.name.charAt(0).toUpperCase()
+                                      )
+                                  }
+                                </div>
+                                <div className='flex items-center gap-5'>
+                                  <p className=' text-start text-gray-800 font-bold'> Name :  <span className='text-gray-500 font-medium'>{player.name}</span></p>
+                                  <p className='text-gray-800 font-bold'> Base Price :  <span className='text-gray-500 font-medium'>{`₹${fixMoney(player.basePrice)}`}</span></p>
+                                </div> </div>
+                              <div className='  flex justify-center items-center gap-1  
+                            text-red-500  font-semibold hover:text-red-700 hover:bg-red-100 hover:border-red-300 hover:border rounded-lg px-2 py-1 transition-all duration-300
+                          '
+                                onClick={() => handleDeletePlayer(player._id, player.name)}
 
-                    <div>
+                              >
+
+                                <Trash2 />
+
+                              </div>
+
+                            </div>
+                          )
+                        })
+                        }
+                      </div>
+
+                      <div>
+
+                      </div>
 
                     </div>
+                  </div>
 
+                  <div className="mt-8">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Grid Preview</h3>
+                    <div className="card max-h-150 overflow-hidden">
+                      <AuctionGrid owners={owners} players={players} gridData={gridData} onViewHistory={setHistoryModalPlayer} />
+                    </div>
                   </div>
                 </div>
-
-                <div className="mt-8">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Grid Preview</h3>
-                  <div className="card max-h-150 overflow-hidden">
-                    <AuctionGrid owners={owners} players={players} gridData={gridData} onViewHistory={setHistoryModalPlayer} />
-                  </div>
-                </div>
-              </div>
+              )
             } />
           </Routes>
         </main>

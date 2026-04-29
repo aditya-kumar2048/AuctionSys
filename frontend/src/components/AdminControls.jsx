@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { startAuction, placeBid, finalizeAuction, createOwner, createPlayer } from '../api';
+import { startAuction, placeBid, finalizeAuction, createOwner, createPlayer, updatePlayer } from '../api';
 import Mousetrap from 'mousetrap';
 import fixMoney from '../utils/money';
 
@@ -18,6 +18,11 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerBasePrice, setNewPlayerBasePrice] = useState('');
   const [newPlayerPhoto, setNewPlayerPhoto] = useState('');
+
+  const [updatePlayerId, setUpdatePlayerId] = useState('');
+  const [updatePlayerStatus, setUpdatePlayerStatus] = useState('');
+  const [updatePlayerBasePrice, setUpdatePlayerBasePrice] = useState('');
+  const [updatePlayerClearBids, setUpdatePlayerClearBids] = useState(false);
 
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -113,6 +118,26 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
       setNewPlayerBasePrice('');
       setNewPlayerPhoto('');
       onUpdate();
+    } catch (err) {
+      handleError(err);
+    }
+  };
+
+  const handleUpdatePlayer = async (e) => {
+    e.preventDefault();
+    if (!updatePlayerId) return;
+    try {
+      await updatePlayer(updatePlayerId, {
+        status: updatePlayerStatus || undefined,
+        basePrice: updatePlayerBasePrice ? Number(updatePlayerBasePrice) : undefined,
+        clearBids: updatePlayerClearBids
+      });
+      setUpdatePlayerId('');
+      setUpdatePlayerStatus('');
+      setUpdatePlayerBasePrice('');
+      setUpdatePlayerClearBids(false);
+      onUpdate();
+      handleNotification('Player updated successfully');
     } catch (err) {
       handleError(err);
     }
@@ -238,6 +263,37 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
               <input type="url" placeholder="Photo URL (Optional)" className="input-field" value={newPlayerPhoto} onChange={e => setNewPlayerPhoto(e.target.value)} />
             </div>
             <button type="submit" className=" bg-white text-md rounded font-bold text-gray-700 cursor-pointer w-full py-2 hover:bg-indigo-600 hover:text-white transition-all duration-300">Create Player</button>
+          </form>
+        </div>
+
+        <div className="card p-5">
+          <h4 className="text-lg font-semibold text-white mb-3 border-b border-gray-100 pb-2">Update Player Info</h4>
+          <form onSubmit={handleUpdatePlayer} className="space-y-3">
+            <div>
+              <select className="input-field" value={updatePlayerId} onChange={e => setUpdatePlayerId(e.target.value)} required>
+                <option value="">Select a player...</option>
+                {players.map(p => (
+                  <option key={p._id} value={p._id}>{p.name} ({p.status})</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <select className="input-field" value={updatePlayerStatus} onChange={e => setUpdatePlayerStatus(e.target.value)}>
+                <option value="">Status (No change)</option>
+                <option value="Not Started">Not Started</option>
+                <option value="Active">Active</option>
+                <option value="Sold">Sold</option>
+                <option value="Unsold">Unsold</option>
+              </select>
+            </div>
+            <div>
+              <input type="number" placeholder="New Base Price (Optional)" className="input-field font-mono" value={updatePlayerBasePrice} onChange={e => setUpdatePlayerBasePrice(e.target.value)} />
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="clearBids" checked={updatePlayerClearBids} onChange={e => setUpdatePlayerClearBids(e.target.checked)} />
+              <label htmlFor="clearBids" className="text-white text-sm">Clear Bid History</label>
+            </div>
+            <button type="submit" className=" bg-white text-md rounded font-bold text-gray-700 cursor-pointer w-full py-2 hover:bg-indigo-600 hover:text-white transition-all duration-300">Update Player</button>
           </form>
         </div>
       </div>

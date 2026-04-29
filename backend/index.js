@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/auction';
+const mongoURI = process.env.MONGO_URI ;
 mongoose.connect(mongoURI).then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -31,6 +31,18 @@ app.post('/api/owners', async (req, res) => {
   await owner.save();
   res.json(owner);
 });
+
+app.patch('/api/owners/:id', async (req, res) => {
+ let {totalBudget} = req.body;
+  totalBudget = Number(totalBudget);
+  if (isNaN(totalBudget) || totalBudget <= 0) {
+    return res.status(400).json({ error: 'Invalid budget value' });
+  }
+ 
+  const owner = await Owner.findByIdAndUpdate(req.params.id, { totalBudget, remainingBudget: totalBudget });
+  if (!owner) return res.status(404).json({ error: 'Owner not found' });
+  res.json(owner).status(200);
+})
 
 app.delete('/api/owners/:id', async (req, res) => {
   const owner = await Owner.findByIdAndDelete(req.params.id);
@@ -58,7 +70,39 @@ app.delete('/api/players/:id', async (req, res) => {
   const player = await Player.findByIdAndDelete(req.params.id);
   if (!player) return res.status(404).json({ error: 'player not found' });
   res.json(player);
-})
+});
+
+app.patch('/api/players/:id', async (req, res) => {
+  try {
+    const { status, basePrice, clearBids } = req.body;
+    const player = await Player.findById(req.params.id);
+    if (!player) return res.status(404).json({ error: 'Player not found' });
+
+    if (player.status === 'Sold' && (status !== 'Sold' || clearBids)) {
+      if (player.soldTo && player.soldPrice) {
+        const owner = await Owner.findById(player.soldTo);
+        if (owner) {
+          owner.remainingBudget += player.soldPrice;
+          await owner.save();
+        }
+      }
+      player.soldTo = undefined;
+      player.soldPrice = undefined;
+    }
+
+    if (status) player.status = status;
+    if (basePrice) player.basePrice = Number(basePrice);
+
+    if (clearBids) {
+      await Bid.deleteMany({ player: req.params.id });
+    }
+
+    await player.save();
+    res.json(player);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // -----------------------------------------
 // Auction Routes
