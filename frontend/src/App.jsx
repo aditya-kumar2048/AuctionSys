@@ -5,7 +5,7 @@ import AuctionGrid from './components/AuctionGrid';
 import Leaderboard from './components/Leaderboard';
 import AdminControls from './components/AdminControls';
 import BidHistoryModal from './components/BidHistoryModal';
-import { Trash2 } from 'lucide-react';
+import { Trash2 , User} from 'lucide-react';
 import TopNav from './components/Navbar';
 import fixMoney from './utils/money';
 
@@ -238,7 +238,7 @@ function App() {
                     onUpdate={fetchData}
                   />
 
-                  <h1 className='text-2xl font-bold text-white'> Manage Teams and Players </h1>
+                  <h1 className='text-2xl font-bold text-white'> Manage Teams and Players <span className='bg-slate-600 mx-2 px-2 rounded-md  text-white text-md '>count: {players.length}</span>  </h1>
                   <div className=' w-full justify-center flex grow gap-5'>
                     <div className='flex flex-col w-200 max-h-210 pt-4 gap-5 rounded-xl bg-white border border-gray-400 '>
                       <div className=' flex py-2 px-2 flex-col gap-3 rounded ' >
