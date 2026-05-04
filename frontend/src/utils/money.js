@@ -1,11 +1,16 @@
 export default function fixMoney(amount) {
+    if (amount == null || isNaN(amount)) return "0";
+    
+    const num = Number(amount);
+    
     const format = (money, unit) => {
-        return money.toFixed(1).replace(/\.0$/, "")  + unit;
+        // Use toFixed(2) to prevent rounding 1.25 Cr to 1.3 Cr
+        return money.toFixed(2).replace(/\.?0+$/, "") + " " + unit;
     }
 
-
-    if (amount >= 1e7) return format(amount / 1e7, "Cr")
-    else if (amount >= 1e5) return format(amount / 1e5, "Lakh")
-    else if (amount >= 1e3) return format(amount / 1e3, "k")
-    return amount.toString();
+    if (num >= 1e7) return format(num / 1e7, "Cr");
+    else if (num >= 1e5) return format(num / 1e5, "Lakh");
+    else if (num >= 1e3) return format(num / 1e3, "k");
+    
+    return num.toString();
 }

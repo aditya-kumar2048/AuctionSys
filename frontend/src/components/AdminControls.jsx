@@ -188,7 +188,7 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
                 </div>
               </div>
 
-              <form onSubmit={handlePlaceBid} className="flex flex-col sm:flex-row gap-3 items-end">
+              <form onSubmit={handlePlaceBid} className="flex flex-col h-20 sm:flex-row gap-3 items-start">
                 <div className="flex-1 w-full">
                   <label className="block text-md font-medium text-white mb-1">Select Team</label>
                   <select
@@ -204,6 +204,7 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
                   </select>
                 </div>
                 <div className="w-full sm:w-40">
+                  <div>
                   <label className="block text-md font-medium text-white mb-1">Bid Amount (₹)</label>
                   <input
                     type="number"
@@ -214,9 +215,18 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
                     required
                   />
                 </div>
-                <button type="submit" className="btn-primary outline outline-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white  cursor-pointer w-full sm:w-auto">
+                <div>
+                 {bidAmount != "" && <p className='text-white' >
+                      {fixMoney(bidAmount)}
+                  </p>}
+                </div>
+                  </div>
+                 <div className=' flex items-center pt-3  h-full'>
+                     <button type="submit" className="btn-primary h-10 outline outline-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white  cursor-pointer w-full sm:w-auto">
                   Place Bid
                 </button>
+                 </div>
+               
               </form>
 
               <div className="pt-4 border-t border-gray-100 flex gap-3">

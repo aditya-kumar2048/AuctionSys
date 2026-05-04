@@ -4,6 +4,7 @@ import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import Mousetrap from 'mousetrap';
 import Logo from "/logo.png"
+import fixMoney from '../utils/money.js';
 import "./auction.css"
 
 gsap.registerPlugin(useGSAP);
@@ -17,8 +18,8 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
   const gsapAnimation = useRef([]);
   const ActivePlayer = players.filter(p => p.status === 'Active');
   const LeftOverPlayer = players.filter(p => p.status !== 'Active');
-  
-  
+
+
 
 
 
@@ -72,47 +73,48 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
   });
 
   return (
-    <div className="h-full w-full bg-slate-950 font-sans text-slate-200 overflow-hidden flex flex-col border border-slate-800/50  relative" ref={container}>
-          {/* Decorative gradient blur in background */}
-    <div className="absolute top-[15%]  right-[15%]  w-250 h-250 pointer-events-none z-0">
-      <img
-        src={Logo}
-        alt="Logo"
-        className="w-full h-full object-contain opacity-20 blur-[6px]"
-      />
-    </div>
-      {/*<div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-900/10 rounded-full blur-[100px] pointer-events-none -z-0"></div> */}
+    <div className="h-full w-full bg-slate-950 font-sans text-slate-200 overflow-hidden flex flex-col border border-slate-800/50 relative" ref={container}>
+      {/* Decorative gradient blur in background */}
+      <div className="absolute top-[15%] right-[15%] w-250 h-250 pointer-events-none z-0">
+        <img
+          src={Logo}
+          alt="Logo"
+          className="w-full h-full object-contain opacity-20 blur-[6px]"
+        />
+      </div>
 
-
-      <div className="overflow-x-auto overflow-y-auto h-full relative z-10 custom-scrollbar">
-        <table className="w-full text-left border-collapse min-w-max text-sm tabular-nums">
+      <div className="overflow-x-auto overflow-y-auto h-full relative z-10 custom-scrollbar flex-1">
+        <table className="w-full text-left border-collapse table-fixed text-sm tabular-nums min-w-[1200px]">
           <thead className="sticky top-0 z-30 shadow-md">
-            <tr >
-              <th className="px-3 py-4  border-b  border-white backdrop-blur-xl bg-slate-950/90 sticky left-0 z-40 w-72  text-slate-400 uppercase tracking-widest text-center text-xl font-bold">
-                Players / Teams
+            <tr>
+              <th className="px-3 py-6 border-b border-slate-700 bg-slate-900 sticky left-0 z-40 w-80 text-slate-400 uppercase  text-center text-xl font-bold">
+                RIT Auction Simulation
               </th>
               {owners.map(owner => (
                 <th
                   key={owner._id}
-                  className={`px-2 py-2 border-b-2 border-white backdrop-blur-xl bg-slate-950/80 font-medium text-center min-w-35 transition-colors duration-300 ${hoveredCol === owner._id ? 'bg-slate-800/50' : ''}`}
+                  className={`px-2 py-6 border-b border-slate-700 bg-slate-900 font-medium text-center transition-colors duration-300 ${hoveredCol === owner._id ? 'bg-slate-800' : ''}`}
                   onMouseEnter={() => setHoveredCol(owner._id)}
                   onMouseLeave={() => setHoveredCol(null)}
                 >
-                  <div className="flex flex-col items-center gap-1.5">
-                    <div className="w-8 h-8 rounded-full bg-linear-to-br from-slate-700 to-slate-800 border border-slate-600 flex items-center justify-center text-xs font-bold text-slate-300 shadow-sm">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-lg font-bold text-slate-300 shadow-sm overflow-hidden">
                       {
-                          owner.photo ? (
-                            <img src={owner.photo} alt={owner.name} className="w-full h-full rounded-full object-cover" />
-                          ) : (
-                            owner.name.substring(0, 2).toUpperCase()
-                          )
+                        owner.photo ? (
+                          <img src={owner.photo} alt={owner.name} className="w-full h-full object-cover" />
+                        ) : (
+                          owner.name.substring(0, 2).toUpperCase()
+                        )
                       }
-                      
-                      
                     </div>
-                    <div className="text-slate-200 truncate w-full text-xs font-semibold">{owner.name}</div>
-                    <div className={` text-blue-700 font-bold ${size[fontSize]} `}>
-                      Bal: ₹{owner.remainingBudget.toLocaleString()}
+                    <div className="w-full flex flex-col items-center gap-1.5">
+                      <div className="text-slate-200 truncate w-full text-base font-semibold">{owner.name}</div>
+                      <div className="flex flex-col items-center justify-center bg-slate-950/50 rounded-lg py-1 px-2 w-full border border-slate-700/50 shadow-inner overflow-hidden">
+                        <span className="text-slate-500 text-[10px] leading-none uppercase font-bold tracking-widest mb-1">Budget</span>
+                        <span className={`text-blue-400 font-bold font-mono tracking-tight transition-all duration-300 ${size[fontSize]}`}>
+                          ₹{fixMoney(owner.remainingBudget)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </th>
@@ -120,7 +122,7 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/50">
-              {ActivePlayer.map((player) => {
+            {ActivePlayer.map((player) => {
               const isActiveRow = player.status === 'Active';
               const isHovered = hoveredRow === player._id;
 
@@ -129,23 +131,23 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
               let paddingClass = "py-3 ";
 
               if (isActiveRow) {
-                rowClasses += "bg-blue-950/20 ";
-                nameColClasses += "backdrop-blur-xl bg-slate-900/90 ";
-                paddingClass = "py-5 ";
+                rowClasses += "bg-blue-900/20 ";
+                nameColClasses += "bg-slate-900 ";
+                paddingClass = "py-4 ";
               } else if (player.status === 'Sold') {
                 rowClasses += "bg-emerald-950/10 opacity-70 ";
-                nameColClasses += "backdrop-blur-xl bg-slate-950/90 ";
-                paddingClass = "py-2 ";
+                nameColClasses += "bg-slate-950 ";
+                paddingClass = "py-3 ";
               } else if (player.status === 'Unsold') {
                 rowClasses += "bg-rose-950/10 opacity-50 ";
-                nameColClasses += "backdrop-blur-xl bg-slate-950/90 ";
+                nameColClasses += "bg-slate-950 ";
               } else {
-                rowClasses += "hover:bg-slate-800/20 ";
-                nameColClasses += "backdrop-blur-xl bg-slate-950/90 ";
+                rowClasses += "hover:bg-slate-800/30 ";
+                nameColClasses += "bg-slate-950 ";
               }
 
               if (isHovered && !isActiveRow) {
-                nameColClasses = nameColClasses.replace("bg-slate-950/90", "bg-slate-900/90");
+                nameColClasses = nameColClasses.replace("bg-slate-950", "bg-slate-900");
               }
 
               return (
@@ -156,17 +158,17 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                   onMouseEnter={() => setHoveredRow(player._id)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
-                  <td className={`px-3 ${paddingClass} sticky left-0 z-20 ${nameColClasses} border-b border-slate-800/30`}>
+                  <td className={`px-4 ${paddingClass} sticky left-0 z-20 ${nameColClasses} border-b border-slate-800/30`}>
                     <div className="flex items-center gap-4">
                       {player.photo ? (
                         <div className="relative">
-                          <img src={player.photo} alt={player.name} className="w-15 h-15 rounded-full object-center border border-slate-700 shadow-lg" />
+                          <img src={player.photo} alt={player.name} className="w-14 h-14 rounded-full object-center border border-slate-700 shadow-sm" />
                           {isActiveRow && (
-                            <div className="absolute inset-0 rounded-full ring-2 ring-blue-500 animate-pulse"></div>
+                            <div className="absolute inset-0 rounded-full ring-2 ring-blue-500"></div>
                           )}
                         </div>
                       ) : (
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border shadow-inner ${isActiveRow ? 'bg-blue-900/40 text-blue-400 border-blue-500/50 ring-2 ring-blue-500/30 ring-offset-slate-950 ring-offset-2' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm border shadow-inner ${isActiveRow ? 'bg-blue-900/40 text-blue-400 border-blue-500 ring-2 ring-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
                           {player.name.charAt(0)}
                         </div>
                       )}
@@ -174,14 +176,14 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                         <div className={`font-semibold text-xl truncate ${isActiveRow ? 'text-white text-base' : 'text-slate-300'}`}>
                           {player.name}
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                          <span className="px-3 py-1 bg-slate-800 border border-slate-700 rounded text-lg text-white font-bold">
-                            Base: ₹{player.basePrice}
+                        <div className="flex w-40 flex-wrap items-center gap-2 mt-1.5">
+                          <span className="px-2   py-1 bg-slate-800 border border-slate-700 rounded text-xl text-white font-bold">
+                            Base: <span className="text-yellow-400">₹{fixMoney(player.basePrice)}</span>
                           </span>
                           <StatusBadge status={player.status} />
                         </div>
                       </div>
-                      <div className="ml-2 flex items-center">
+                      {/* <div className="ml-2 flex items-center">
                         <button
                           onClick={() => onViewHistory(player)}
                           className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700"
@@ -189,7 +191,7 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                         >
                           <History className="w-4 h-4" />
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                   </td>
 
@@ -204,38 +206,38 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
 
                     const isCrosshairHovered = hoveredRow === player._id || hoveredCol === owner._id;
 
-                    let cellClasses = `px-4 ${paddingClass} text-center font-mono border-r border-slate-800/30 last:border-r-0 transition-colors duration-200 border-b relative `;
+                    let cellClasses = `px-2 ${paddingClass} text-center font-mono border-r border-slate-800/30 last:border-r-0 transition-colors duration-200 border-b relative `;
                     let textClasses = "text-sm ";
 
                     if (isHighestActive) {
-                      cellClasses += "bg-blue-900/20 ";
-                      textClasses = "text-blue-400 font-bold text-2xl drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] ";
+                      cellClasses += "bg-blue-900/30 ";
+                      textClasses = "text-blue-400 font-bold text-xl ";
                     } else if (isWinner) {
-                      cellClasses += "bg-slate-800/40 ";
-                      textClasses = "text-amber-400/90 font-semibold text-xl";
+                      cellClasses += "bg-slate-800/60 ";
+                      textClasses = "text-amber-400 font-semibold text-lg";
                     } else if (isLoser) {
                       cellClasses += " ";
-                      textClasses = "text-slate-600 text-lg line-through decoration-slate-700/50 ";
+                      textClasses = "text-slate-600 text-md line-through decoration-slate-700/50 ";
                     } else if (bid) {
-                      textClasses = "text-slate-300 text-lg font-medium group-hover/row:text-slate-200";
+                      textClasses = "text-slate-300 text-md font-medium group-hover/row:text-slate-200";
                     } else {
-                      textClasses = "text-slate-700 text-xs";
+                      textClasses = "text-slate-700 text-sm";
                     }
 
                     if (isCrosshairHovered && !isHighestActive && !isWinner && player.status !== 'Sold' && player.status !== 'Unsold') {
-                      cellClasses += "bg-slate-800/30 ";
+                      cellClasses += "bg-slate-800/40 ";
                     }
 
                     return (
                       <td key={`${player._id}-${owner._id}`} className={cellClasses}>
                         {isHighestActive && (
-                          <div className="absolute inset-0 border border-blue-500/50 shadow-[inset_0_0_15px_rgba(59,130,246,0.2)] pointer-events-none"></div>
+                          <div className="absolute inset-0 border border-blue-500 pointer-events-none"></div>
                         )}
                         {isWinner && (
-                          <div className="absolute inset-0 border border-amber-500/20 bg-amber-500/5 pointer-events-none"></div>
+                          <div className="absolute inset-0 border border-amber-500/30 bg-amber-500/10 pointer-events-none"></div>
                         )}
                         {bid ? (
-                          <span className={`${textClasses} ${size[fontSize]}`}>₹{bid.amount.toLocaleString()}</span>
+                          <span className={`${textClasses} ${size[fontSize]}`}>₹{fixMoney(bid.amount)}</span>
                         ) : (
                           <span className={textClasses}>-</span>
                         )}
@@ -244,7 +246,7 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                   })}
                 </tr>
               );
-              })} 
+            })}
             {LeftOverPlayer.map((player) => {
               const isActiveRow = player.status === 'Active';
               const isHovered = hoveredRow === player._id;
@@ -254,23 +256,23 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
               let paddingClass = "py-3 ";
 
               if (isActiveRow) {
-                rowClasses += "bg-blue-950/20 ";
-                nameColClasses += "backdrop-blur-xl bg-slate-900/90 ";
-                paddingClass = "py-5 ";
+                rowClasses += "bg-blue-900/20 ";
+                nameColClasses += "bg-slate-900 ";
+                paddingClass = "py-4 ";
               } else if (player.status === 'Sold') {
                 rowClasses += "bg-emerald-950/10 opacity-70 ";
-                nameColClasses += "backdrop-blur-xl bg-slate-950/90 ";
-                paddingClass = "py-2 ";
+                nameColClasses += "bg-slate-950 ";
+                paddingClass = "py-3 ";
               } else if (player.status === 'Unsold') {
                 rowClasses += "bg-rose-950/10 opacity-50 ";
-                nameColClasses += "backdrop-blur-xl bg-slate-950/90 ";
+                nameColClasses += "bg-slate-950 ";
               } else {
-                rowClasses += "hover:bg-slate-800/20 ";
-                nameColClasses += "backdrop-blur-xl bg-slate-950/90 ";
+                rowClasses += "hover:bg-slate-800/30 ";
+                nameColClasses += "bg-slate-950 ";
               }
 
               if (isHovered && !isActiveRow) {
-                nameColClasses = nameColClasses.replace("bg-slate-950/90", "bg-slate-900/90");
+                nameColClasses = nameColClasses.replace("bg-slate-950", "bg-slate-900");
               }
 
               return (
@@ -281,17 +283,17 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                   onMouseEnter={() => setHoveredRow(player._id)}
                   onMouseLeave={() => setHoveredRow(null)}
                 >
-                  <td className={`px-3 ${paddingClass} sticky left-0 z-20 ${nameColClasses} border-b border-slate-800/30`}>
+                  <td className={`px-4 ${paddingClass} sticky left-0 z-20 ${nameColClasses} border-b border-slate-800/30`}>
                     <div className="flex items-center gap-4">
                       {player.photo ? (
                         <div className="relative">
-                          <img src={player.photo} alt={player.name} className="w-15 h-15 rounded-full object-center border border-slate-700 shadow-lg" />
+                          <img src={player.photo} alt={player.name} className="w-14 h-14 rounded-full object-center border border-slate-700 shadow-sm" />
                           {isActiveRow && (
-                            <div className="absolute inset-0 rounded-full ring-2 ring-blue-500 animate-pulse"></div>
+                            <div className="absolute inset-0 rounded-full ring-2 ring-blue-500"></div>
                           )}
                         </div>
                       ) : (
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border shadow-inner ${isActiveRow ? 'bg-blue-900/40 text-blue-400 border-blue-500/50 ring-2 ring-blue-500/30 ring-offset-slate-950 ring-offset-2' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm border shadow-inner ${isActiveRow ? 'bg-blue-900/40 text-blue-400 border-blue-500 ring-2 ring-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
                           {player.name.charAt(0)}
                         </div>
                       )}
@@ -299,9 +301,9 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                         <div className={`font-semibold text-xl truncate ${isActiveRow ? 'text-white text-base' : 'text-slate-300'}`}>
                           {player.name}
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                          <span className="px-3 py-1 bg-slate-800 border border-slate-700 rounded text-lg text-white font-bold">
-                            Base: ₹{player.basePrice}
+                        <div className="flex w-40 flex-wrap items-center gap-2 mt-1.5">
+                          <span className="px-2  py-1  bg-slate-800 border border-slate-700 rounded text-xl text-white font-bold">
+                            Base: <span className='text-yellow-400'>₹{fixMoney(player.basePrice)}</span>
                           </span>
                           <StatusBadge status={player.status} />
                         </div>
@@ -312,7 +314,7 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                           className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700"
                           title="View Bid History"
                         >
-                          <History className="w-4 h-4" />
+                          {/* <History className="w-4 h-4" /> */}
                         </button>
                       </div>
                     </div>
@@ -329,35 +331,35 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
 
                     const isCrosshairHovered = hoveredRow === player._id || hoveredCol === owner._id;
 
-                    let cellClasses = `px-4 ${paddingClass} text-center font-mono border-r border-slate-800/30 last:border-r-0 transition-colors duration-200 border-b relative `;
+                    let cellClasses = `px-2 ${paddingClass} text-center font-mono border-r border-slate-800/30 last:border-r-0 transition-colors duration-200 border-b relative `;
                     let textClasses = "text-sm ";
 
                     if (isHighestActive) {
-                      cellClasses += "bg-blue-900/20 ";
-                      textClasses = "text-blue-400 font-bold text-2xl drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] ";
+                      cellClasses += "bg-blue-900/30 ";
+                      textClasses = "text-blue-400 font-bold text-xl ";
                     } else if (isWinner) {
-                      cellClasses += "bg-slate-800/40 ";
-                      textClasses = "text-amber-400/90 font-semibold text-xl";
+                      cellClasses += "bg-slate-800/60 ";
+                      textClasses = "text-amber-400 font-semibold text-lg";
                     } else if (isLoser) {
                       cellClasses += " ";
-                      textClasses = "text-slate-600 text-lg line-through decoration-slate-700/50 ";
+                      textClasses = "text-slate-600 text-md line-through decoration-slate-700/50 ";
                     } else if (bid) {
-                      textClasses = "text-slate-300 text-lg font-medium group-hover/row:text-slate-200";
+                      textClasses = "text-slate-300 text-md font-medium group-hover/row:text-slate-200";
                     } else {
-                      textClasses = "text-slate-700 text-xs";
+                      textClasses = "text-slate-700 text-sm";
                     }
 
                     if (isCrosshairHovered && !isHighestActive && !isWinner && player.status !== 'Sold' && player.status !== 'Unsold') {
-                      cellClasses += "bg-slate-800/30 ";
+                      cellClasses += "bg-slate-800/40 ";
                     }
 
                     return (
                       <td key={`${player._id}-${owner._id}`} className={cellClasses}>
                         {isHighestActive && (
-                          <div className="absolute inset-0 border border-blue-500/50 shadow-[inset_0_0_15px_rgba(59,130,246,0.2)] pointer-events-none"></div>
+                          <div className="absolute inset-0 border border-blue-500 pointer-events-none"></div>
                         )}
                         {isWinner && (
-                          <div className="absolute inset-0 border border-amber-500/20 bg-amber-500/5 pointer-events-none"></div>
+                          <div className="absolute inset-0 border border-amber-500/30 bg-amber-500/10 pointer-events-none"></div>
                         )}
                         {bid ? (
                           <span className={`${textClasses} ${size[fontSize]}`}>₹{bid.amount.toLocaleString()}</span>
@@ -413,8 +415,8 @@ function StatusBadge({ status }) {
         };
       case 'Sold':
         return {
-          bg: 'bg-emerald-500/10',
-          border: 'border-emerald-500/20',
+          bg: 'bg-emerald-500/20',
+          border: 'border-emerald-500/40',
           text: 'text-emerald-500',
           dot: 'bg-emerald-500'
         };
@@ -438,8 +440,8 @@ function StatusBadge({ status }) {
   const styles = getStyles();
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 ] font-bold uppercase tracking-wider rounded border  ${styles.bg} ${styles.border} ${styles.text}  text-lg`}>
-      <span className={`w-2 h-2 rounded-full ${styles.dot}`}></span>
+    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 font-bold uppercase tracking-wider rounded border ${styles.bg} ${styles.border} ${styles.text} text-xs`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${styles.dot}`}></span>
       {status}
     </span>
   );
