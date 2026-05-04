@@ -112,6 +112,16 @@ function AdminControls({ owners, players, activePlayer, onUpdate }) {
   const handleCreatePlayer = async (e) => {
     e.preventDefault();
     if (!newPlayerName || !newPlayerBasePrice) return;
+
+    const existingPlayer = players.find(
+      (p) => p.name.toLowerCase().trim() === newPlayerName.toLowerCase().trim()
+    );
+
+    if (existingPlayer) {
+      const confirmAdd = window.confirm(`A player named "${existingPlayer.name}" already exists. Do you still want to add?`);
+      if (!confirmAdd) return;
+    }
+
     try {
       await createPlayer({ name: newPlayerName, basePrice: Number(newPlayerBasePrice), photo: newPlayerPhoto || null });
       setNewPlayerName('');
