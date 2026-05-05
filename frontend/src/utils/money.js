@@ -9,7 +9,7 @@ export default function fixMoney(amount) {
     }
 
     if (num >= 1e7) return format(num / 1e7, "Cr");
-    else if (num >= 1e5) return format(num / 1e5, "Lakh");
+    else if (num >= 1e5) return format(num / 1e5, "L");
     else if (num >= 1e3) return format(num / 1e3, "k");
     
     return num.toString();
