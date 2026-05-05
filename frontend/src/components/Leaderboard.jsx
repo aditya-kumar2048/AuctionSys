@@ -1,4 +1,5 @@
 import React from 'react';
+import fixMoney from '../utils/money';
 
 function Leaderboard({ owners, players }) {
   const leaderboardData = owners.map(owner => {
@@ -81,7 +82,7 @@ function Leaderboard({ owners, players }) {
                     Budget
                   </p>
                   <p className={`font-mono text-lg font-bold tracking-tight ${budgetColor}`}>
-                    ₹{owner.remainingBudget.toLocaleString()}
+                    ₹{fixMoney(owner.remainingBudget)}
                   </p>
                 </div>
               </div>

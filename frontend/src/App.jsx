@@ -192,31 +192,28 @@ function App() {
                   <input
                     type="password"
                     placeholder="Enter Admin PIN"
-                    value={adminPinInput}
+                    
+                    value={adminPinInput}                
                     onChange={(e) => setAdminPinInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        if (adminPinInput === 'mohit') {
+                        if (adminPinInput === 'mohit' || adminPinInput === 'aditya') {
                           setIsAdminAuthenticated(true);
                         } else {
-                          toast.error("Invalid PIN", {
-                            style: { border: '1px solid #713200', padding: '16px', color: '#713200' },
-                            iconTheme: { primary: '#713200', secondary: '#FFFAEE' }
-                          });
+                          alert("Invalid PIN");
+                          setAdminPinInput('');
                         }
                       }
                     }}
-                    className="px-4 py-2 rounded-md border border-gray-300 text-black w-64 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-4 py-2 rounded-md border border-gray-300 text-white w-64 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
                     onClick={() => {
                       if (adminPinInput === 'mohit' || adminPinInput === 'aditya') {
                         setIsAdminAuthenticated(true);
                       } else {
-                        toast.error("Invalid PIN", {
-                          style: { border: '1px solid #713200', padding: '16px', color: '#713200' },
-                          iconTheme: { primary: '#713200', secondary: '#FFFAEE' }
-                        });
+                        alert("Invalid PIN");
+                        setAdminPinInput('');
                       }
                     }}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-md transition-colors font-medium shadow-md cursor-pointer"

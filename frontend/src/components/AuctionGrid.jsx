@@ -237,7 +237,7 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                           <div className="absolute inset-0 border border-amber-500/30 bg-amber-500/10 pointer-events-none"></div>
                         )}
                         {bid ? (
-                          <span className={`${textClasses} ${size[fontSize]}`}>₹{fixMoney(bid.amount)}</span>
+                          <span className={`${textClasses}  text-[30px]`}>₹{fixMoney(bid.amount)}</span>
                         ) : (
                           <span className={textClasses}>-</span>
                         )}
@@ -362,7 +362,7 @@ function AuctionGrid({ owners, players, gridData, onViewHistory }) {
                           <div className="absolute inset-0 border border-amber-500/30 bg-amber-500/10 pointer-events-none"></div>
                         )}
                         {bid ? (
-                          <span className={`${textClasses} text-[25px]`}>₹{fixMoney(bid.amount)}</span>
+                          <span className={`${textClasses} text-[30px]`}>₹{fixMoney(bid.amount)}</span>
                         ) : (
                           <span className={textClasses}>-</span>
                         )}
